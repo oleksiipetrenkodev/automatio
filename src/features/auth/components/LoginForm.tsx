@@ -1,8 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Image } from "next/image";
-import { Link } from "next/link";
+// import { Image } from "next/image";
+// import { Link } from "next/link";
 
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -26,8 +26,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+// import { Input } from "@/components/ui/input";
+// import { cn } from "@/lib/utils";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
