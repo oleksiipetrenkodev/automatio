@@ -1,8 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+// import { Image } from "next/image";
+// import { Link } from "next/link";
+
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -22,38 +26,47 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-
+import { Input } from "@/components/ui/input";;
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal } from "react";
 
 
-const loginSchema = z.object({
+const registerSchema = z.object({
   email: z.email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
+  confirmPassword: z.string().min(1, "Confirm password is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+  path: ["confirmPassword"],
+  message: "Passwords do not match",
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
-export function LoginForm() {
+export function RegisterForm() {
+
   const router = useRouter();
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
-    await authClient.signIn.email(
+  const onSubmit = async (values: RegisterFormValues) => {
+    await authClient.signUp.email(
       {
         email: values.email,
         password: values.password,
+        name: values.email,
         callbackURL: "/",
       },
       {
         onSuccess: () => {
+          toast.success("Account created successfully");
           router.push("/");
         },
         onError: (ctx) => {
@@ -63,14 +76,15 @@ export function LoginForm() {
     );
   };
 
+
   const isPending = form.formState.isSubmitting;
 
   return (
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader className="text-center">
-          <CardTitle>Welcome Back</CardTitle>
-          <CardDescription>Login to continue</CardDescription>
+          <CardTitle>Create an account</CardTitle>
+          <CardDescription>Create an account to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -104,6 +118,7 @@ export function LoginForm() {
                       <FormMessage />
                     </FormItem>
                   )} />
+
                   <FormField control={form.control} name="password" render={({ field }) => (
                     <FormItem>
                       <FormLabel >Password</FormLabel>
@@ -113,12 +128,24 @@ export function LoginForm() {
                       <FormMessage />
                     </FormItem>
                   )} />
+
+
+
+                  <FormField control={form.control} name="confirmPassword" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel >Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Confirm Password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                   <Button type="submit" className="w-full" disabled={isPending}>
-                    Login
+                    Sign Up
                   </Button>
                 </div>
                 <div className="text-center text-small">
-                  Don't have an account? <Link href="/signup" className="underline underline-offset-4">Register</Link>
+                  Already have an account? <Link href="/login" className="underline underline-offset-4">Login</Link>
                 </div>
               </div>
             </form>
